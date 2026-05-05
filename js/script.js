@@ -13,11 +13,11 @@ const form = document.getElementById('contact-form');
         form.style.display = 'none';
         success.style.display = 'block';
       } else {
-        const mailto = `mailto:luescher.sascha@gmail.com?subject=Interesse%20PICTS-Netzwerk%20Aargau&body=Name%3A%20${encodeURIComponent(data.get('vorname') + ' ' + data.get('nachname'))}%0AE-Mail%3A%20${encodeURIComponent(data.get('email'))}%0ASchule%3A%20${encodeURIComponent(data.get('schule') || '')}%0AInteresse%3A%20${encodeURIComponent(data.get('interesse') || '')}%0ANachricht%3A%20${encodeURIComponent(data.get('nachricht') || '')}`;
+        const mailto = `mailto:info@picts-ag.ch?subject=Interesse%20PICTS-Netzwerk%20Aargau&body=Name%3A%20${encodeURIComponent(data.get('vorname') + ' ' + data.get('nachname'))}%0AE-Mail%3A%20${encodeURIComponent(data.get('email'))}%0ASchule%3A%20${encodeURIComponent(data.get('schule') || '')}%0AInteresse%3A%20${encodeURIComponent(data.get('interesse') || '')}%0ANachricht%3A%20${encodeURIComponent(data.get('nachricht') || '')}`;
         window.location.href = mailto;
       }
     } catch {
-      const mailto = `mailto:luescher.sascha@gmail.com?subject=Interesse%20PICTS-Netzwerk%20Aargau&body=Name%3A%20${encodeURIComponent(data.get('vorname') + ' ' + data.get('nachname'))}%0AE-Mail%3A%20${encodeURIComponent(data.get('email'))}%0ASchule%3A%20${encodeURIComponent(data.get('schule') || '')}%0AInteresse%3A%20${encodeURIComponent(data.get('interesse') || '')}%0ANachricht%3A%20${encodeURIComponent(data.get('nachricht') || '')}`;
+      const mailto = `mailto:info@picts-ag.ch?subject=Interesse%20PICTS-Netzwerk%20Aargau&body=Name%3A%20${encodeURIComponent(data.get('vorname') + ' ' + data.get('nachname'))}%0AE-Mail%3A%20${encodeURIComponent(data.get('email'))}%0ASchule%3A%20${encodeURIComponent(data.get('schule') || '')}%0AInteresse%3A%20${encodeURIComponent(data.get('interesse') || '')}%0ANachricht%3A%20${encodeURIComponent(data.get('nachricht') || '')}`;
       window.location.href = mailto;
     }
   });
