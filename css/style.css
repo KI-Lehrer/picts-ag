@@ -699,6 +699,10 @@
     line-height: 1.75;
     margin-bottom: 10px;
   }
+  .legal-inner strong {
+    display: inline-block;
+    margin-bottom: 2px;
+  }
   .legal-inner ul {
     padding-left: 1.4rem;
     margin-bottom: 10px;
@@ -730,11 +734,16 @@
     gap: 24px;
     flex-wrap: wrap;
   }
+  .footer-sep {
+    color: rgba(255,255,255,0.2);
+    user-select: none;
+  }
   .footer-links a {
     color: rgba(255,255,255,0.45);
     text-decoration: none;
     font-size: 12px;
     transition: color 0.2s;
+    margin: 0 5px;
   }
   .footer-links a:hover { color: rgba(255,255,255,0.85); }
 
