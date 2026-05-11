@@ -1,23 +1,43 @@
-const form = document.getElementById('contact-form');
+// ──────────────────────────────────────────────
+// PICTS-Netzwerk Aargau – Kontaktformular
+// Rein mailto-basiert – keine Drittanbieter
+// ──────────────────────────────────────────────
+
+(function () {
+  'use strict';
+
+  const form = document.getElementById('contact-form');
   const success = document.getElementById('form-success');
-  form.addEventListener('submit', async function(e) {
+
+  // Nur auf Seiten mit Formular ausführen (nicht auf Impressum/Datenschutz)
+  if (!form || !success) return;
+
+  form.addEventListener('submit', function (e) {
     e.preventDefault();
     const data = new FormData(form);
-    try {
-      const res = await fetch('https://formspree.io/f/YOUR_FORM_ID', {
-        method: 'POST',
-        body: data,
-        headers: { 'Accept': 'application/json' }
-      });
-      if (res.ok) {
-        form.style.display = 'none';
-        success.style.display = 'block';
-      } else {
-        const mailto = `mailto:info@picts-ag.ch?subject=Interesse%20PICTS-Netzwerk%20Aargau&body=Name%3A%20${encodeURIComponent(data.get('vorname') + ' ' + data.get('nachname'))}%0AE-Mail%3A%20${encodeURIComponent(data.get('email'))}%0ASchule%3A%20${encodeURIComponent(data.get('schule') || '')}%0AInteresse%3A%20${encodeURIComponent(data.get('interesse') || '')}%0ANachricht%3A%20${encodeURIComponent(data.get('nachricht') || '')}`;
-        window.location.href = mailto;
-      }
-    } catch {
-      const mailto = `mailto:info@picts-ag.ch?subject=Interesse%20PICTS-Netzwerk%20Aargau&body=Name%3A%20${encodeURIComponent(data.get('vorname') + ' ' + data.get('nachname'))}%0AE-Mail%3A%20${encodeURIComponent(data.get('email'))}%0ASchule%3A%20${encodeURIComponent(data.get('schule') || '')}%0AInteresse%3A%20${encodeURIComponent(data.get('interesse') || '')}%0ANachricht%3A%20${encodeURIComponent(data.get('nachricht') || '')}`;
-      window.location.href = mailto;
-    }
+
+    const name = ((data.get('vorname') || '') + ' ' + (data.get('nachname') || '')).trim();
+    const email = data.get('email') || '';
+    const schule = data.get('schule') || '';
+    const interesse = data.get('interesse') || '';
+    const nachricht = data.get('nachricht') || '';
+
+    const body = [
+      'Name: ' + name,
+      'E-Mail: ' + email,
+      'Schule: ' + schule,
+      'Interesse: ' + interesse,
+      'Nachricht: ' + nachricht
+    ].join('\n');
+
+    window.location.href = 'mailto:info@picts-ag.ch'
+      + '?subject=' + encodeURIComponent('Interesse PICTS-Netzwerk Aargau')
+      + '&body=' + encodeURIComponent(body);
+
+    // Erfolgsanzeige nach kurzem Delay
+    setTimeout(function () {
+      form.style.display = 'none';
+      success.style.display = 'block';
+    }, 500);
   });
+})();
