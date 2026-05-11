@@ -811,7 +811,7 @@
     border-top: 1px solid var(--border);
   }
   .trust-content {
-    max-width: 680px;
+    max-width: 800px;
   }
   .trust-content p {
     font-size: 0.95rem;
@@ -825,6 +825,38 @@
   }
   .trust-content a:hover {
     text-decoration: underline;
+  }
+  .trust-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 2rem;
+    margin: 2rem 0;
+    padding: 2rem;
+    background: var(--bg);
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+  }
+  .trust-item strong {
+    display: block;
+    font-size: 0.9rem;
+    color: var(--navy);
+    margin-bottom: 0.5rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+  .trust-item p {
+    font-size: 0.88rem;
+    margin-bottom: 0;
+  }
+  .trust-footer {
+    margin-top: 2rem;
+    font-size: 0.9rem !important;
+  }
+
+  .footer-notice {
+    margin-top: 24px;
+    font-size: 11px;
+    color: rgba(255,255,255,0.3);
   }
 
   /* Legal stand */
