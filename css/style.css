@@ -643,6 +643,22 @@
     margin-top: 16px;
   }
 
+  .form-privacy-note {
+    margin-top: 20px;
+    font-size: 11px;
+    line-height: 1.5;
+    color: var(--muted);
+    border-top: 1px solid var(--border);
+    padding-top: 15px;
+  }
+  .form-privacy-note a {
+    color: var(--ag-red);
+    text-decoration: none;
+  }
+  .form-privacy-note a:hover {
+    text-decoration: underline;
+  }
+
   /* ── LEGAL SECTIONS ── */
   .legal-section {
     background: var(--white);
