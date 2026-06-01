@@ -1,0 +1,819 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PICTS-Netzwerk Kanton Aargau – vernetzt. gestärkt. digital.</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&family=Open+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+  
+  <style>
+    /* ==========================================
+       DESIGN-SYSTEM & VARIABLEN
+       ========================================== */
+    :root {
+      --color-primary: #1F4E79;      /* Tiefes Blau */
+      --color-secondary: #2F80ED;    /* Mittelblau */
+      --color-text: #1F2937;         /* Anthrazit */
+      --color-bg: #F8FAFC;           /* Off-White */
+      --color-accent: #14B8A6;       /* Türkis-Akzent */
+      --color-highlight: #DCEEFF;    /* Hellblau */
+      --color-border: #E5E7EB;       /* Hellgrau */
+      --color-white: #FFFFFF;
+      --font-headings: 'Montserrat', sans-serif;
+      --font-body: 'Open Sans', sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: var(--font-body);
+      color: var(--color-text);
+      line-height: 1.5;
+      background-color: #f1f5f9;
+    }
+
+    /* ==========================================
+       PAGE CONTAINER LAYOUT (A4 PORTRAIT BUDGET)
+       ========================================== */
+    .page {
+      background-color: var(--color-white);
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      background-image: radial-gradient(#e2e8f0 1.2px, transparent 1.2px);
+      background-size: 16px 16px;
+      background-position: 0 0;
+    }
+
+    /* ==========================================
+       SCREEN PREVIEW STYLING
+       ========================================== */
+    @media screen {
+      body {
+        padding-top: 60px; /* Space for fixed printbar */
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+      }
+      .page {
+        width: 210mm;
+        height: 297mm;
+        margin: 30px auto;
+        padding: 16mm 16mm 14mm 16mm;
+        box-shadow: 0 15px 35px rgba(31, 78, 121, 0.15), 0 5px 15px rgba(0, 0, 0, 0.05);
+        border: 1px solid #cbd5e1;
+        border-radius: 12px;
+      }
+      /* Fixed Print Bar at top of viewport */
+      .print-bar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 60px;
+        background-color: #0f172a;
+        color: #f8fafc;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0 24px;
+        z-index: 1000;
+        box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+        font-size: 14px;
+      }
+      .print-info {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+      .print-title {
+        font-family: var(--font-headings);
+        font-weight: 700;
+        color: var(--color-accent);
+        letter-spacing: 0.5px;
+      }
+      .print-tip {
+        font-size: 12px;
+        color: #94a3b8;
+      }
+      .print-btn {
+        background-color: var(--color-accent);
+        color: var(--color-white);
+        border: none;
+        padding: 8px 18px;
+        font-family: var(--font-headings);
+        font-weight: 700;
+        font-size: 13px;
+        border-radius: 6px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        box-shadow: 0 2px 4px rgba(20, 184, 166, 0.2);
+      }
+      .print-btn:hover {
+        background-color: #0d9488;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 6px rgba(20, 184, 166, 0.3);
+      }
+      .print-btn svg {
+        fill: currentColor;
+      }
+    }
+
+    /* ==========================================
+       MOBILE RESPONSIVE SCREEN LAYOUT
+       ========================================== */
+    @media screen and (max-width: 215mm) {
+      body {
+        padding-top: 60px;
+        background-color: var(--color-bg);
+      }
+      .page {
+        width: 100%;
+        height: auto;
+        margin: 10px;
+        padding: 24px;
+        box-shadow: none;
+        border: none;
+        border-radius: 0;
+        background-image: none;
+      }
+      .stats-bar {
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 12px !important;
+      }
+      .grid {
+        grid-template-columns: 1fr !important;
+        gap: 20px !important;
+      }
+      .print-info {
+        display: none;
+      }
+      .footer-inner {
+        flex-direction: column !important;
+        align-items: center !important;
+        text-align: center !important;
+        gap: 24px !important;
+      }
+      .footer-right {
+        flex-direction: column !important;
+        text-align: center !important;
+      }
+    }
+
+    /* ==========================================
+       PRINT STYLING (A4 STRICT CANVAS)
+       ========================================== */
+    @media print {
+      body {
+        background-color: var(--color-white);
+        padding: 0;
+        margin: 0;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+      }
+      .print-bar {
+        display: none;
+      }
+      .page {
+        width: 210mm;
+        height: 297mm;
+        padding: 16mm 16mm 14mm 16mm;
+        margin: 0;
+        border: none;
+        box-shadow: none;
+        border-radius: 0;
+        page-break-after: always;
+      }
+    }
+
+    /* ==========================================
+       HEADER ELEMENTE (LOGO, TITEL, CLAIM)
+       ========================================== */
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 2px solid var(--color-primary);
+      padding-bottom: 12px;
+      margin-bottom: 14px;
+    }
+    
+    .header-left {
+      display: flex;
+      flex-direction: column;
+    }
+    
+    .tagline {
+      font-size: 8.5px;
+      font-weight: 700;
+      color: var(--color-secondary);
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      margin-bottom: 4px;
+    }
+    
+    h1 {
+      font-family: var(--font-headings);
+      font-size: 26px;
+      font-weight: 800;
+      color: var(--color-primary);
+      margin: 0;
+      line-height: 1.15;
+    }
+    
+    h1 span {
+      color: var(--color-secondary);
+      font-weight: 400;
+      font-style: italic;
+    }
+    
+    .claim-pill-wrapper {
+      margin-top: 8px;
+      display: flex;
+      gap: 6px;
+      align-items: center;
+    }
+
+    .claim-pill {
+      font-family: var(--font-headings);
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--color-primary);
+      background-color: var(--color-highlight);
+      padding: 3px 10px;
+      border-radius: 20px;
+      display: inline-flex;
+      align-items: center;
+    }
+    
+    .claim-pill.active {
+      background-color: var(--color-accent);
+      color: var(--color-white);
+    }
+    
+    .logo-container {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .logo-img {
+      height: 75px;
+      width: auto;
+      object-fit: contain;
+      display: block;
+    }
+
+    /* ==========================================
+       INTRO / HERO TEXT
+       ========================================== */
+    .intro-section {
+      margin-bottom: 12px;
+    }
+    
+    .intro-text {
+      font-size: 12.5px;
+      line-height: 1.6;
+      font-weight: 600;
+      color: var(--color-primary);
+      margin: 0;
+    }
+
+    /* ==========================================
+       STATS BAR (FACTS GRID)
+       ========================================== */
+    .stats-bar {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      background-color: var(--color-bg);
+      border: 1px solid var(--color-border);
+      border-radius: 8px;
+      padding: 12px 6px;
+      margin-bottom: 14px;
+      text-align: center;
+    }
+    
+    .stat-item {
+      border-right: 1px solid var(--color-border);
+      padding: 0 4px;
+    }
+    
+    .stat-item:last-child {
+      border-right: none;
+    }
+    
+    .stat-number {
+      font-family: var(--font-headings);
+      font-size: 20px;
+      font-weight: 800;
+      color: var(--color-primary);
+      line-height: 1.1;
+      margin-bottom: 2px;
+    }
+    
+    .stat-number span {
+      color: var(--color-accent);
+    }
+    
+    .stat-label {
+      font-size: 8.5px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      font-weight: 700;
+      color: #556b82;
+    }
+
+    /* ==========================================
+       GRID-LAYOUT FÜR DIE 4 SEKTIONEN
+       ========================================== */
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      grid-template-rows: auto auto;
+      gap: 14px;
+      margin-bottom: 14px;
+      flex-grow: 1;
+    }
+    
+    .card {
+      border: 1px solid var(--color-border);
+      border-radius: 8px;
+      padding: 14px;
+      background-color: var(--color-white);
+      box-shadow: 0 2px 4px rgba(31, 78, 121, 0.02);
+      display: flex;
+      flex-direction: column;
+    }
+    
+    .card-title {
+      font-family: var(--font-headings);
+      font-size: 13.5px;
+      font-weight: 700;
+      color: var(--color-primary);
+      margin-top: 0;
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      border-bottom: 2px solid var(--color-highlight);
+      padding-bottom: 6px;
+    }
+    
+    .card-title svg {
+      color: var(--color-secondary);
+      flex-shrink: 0;
+    }
+    
+    .card-content {
+      font-size: 10.5px;
+      line-height: 1.5;
+      color: var(--color-text);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      height: 100%;
+    }
+    
+    .card-content ul {
+      margin: 0;
+      padding-left: 0;
+      list-style: none;
+    }
+    
+    .card-content li {
+      position: relative;
+      padding-left: 18px;
+      margin-bottom: 8px;
+    }
+    
+    .card-content li:last-child {
+      margin-bottom: 0;
+    }
+    
+    .card-content li::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 5px;
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background-color: var(--color-accent);
+    }
+    
+    /* Spezifische Karten-Styles */
+    .card-warum li::before {
+      background-color: #ef4444; /* Rot für Herausforderungen */
+    }
+    
+    .card-mehrwert {
+      border-left: 3px solid var(--color-primary);
+    }
+    
+    /* TIMELINE-WIDGET FÜR TREFFEN-KARTE */
+    .timeline {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-top: 2px;
+    }
+    
+    .timeline-step {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--color-bg);
+      padding: 6px 10px;
+      border-radius: 6px;
+      border-left: 3px solid var(--color-secondary);
+    }
+    
+    .timeline-badge {
+      background: var(--color-primary);
+      color: var(--color-white);
+      font-family: var(--font-headings);
+      font-size: 9.5px;
+      font-weight: 700;
+      padding: 2px 4px;
+      border-radius: 4px;
+      min-width: 28px;
+      text-align: center;
+    }
+    
+    .timeline-text {
+      display: flex;
+      flex-direction: column;
+    }
+    
+    .timeline-text strong {
+      font-size: 10px;
+      color: var(--color-primary);
+    }
+    
+    .timeline-text span {
+      font-size: 9px;
+      color: #4b5563;
+    }
+
+    /* CTA-KARTE (MITMACHEN) */
+    .card-cta {
+      background-color: var(--color-highlight);
+      border: 1.5px solid var(--color-accent);
+      position: relative;
+    }
+    
+    .card-cta .card-title {
+      border-bottom: 2px solid var(--color-accent);
+      color: #0f766e;
+    }
+    
+    .card-cta .card-title svg {
+      color: var(--color-accent);
+    }
+    
+    .cta-badge {
+      background-color: var(--color-accent);
+      color: var(--color-white);
+      font-size: 8px;
+      font-weight: 700;
+      text-transform: uppercase;
+      padding: 2px 6px;
+      border-radius: 4px;
+      margin-left: auto;
+      letter-spacing: 0.5px;
+    }
+    
+    .card-cta li::before {
+      background-color: var(--color-accent);
+    }
+    
+    .cta-button {
+      background-color: var(--color-accent);
+      color: var(--color-white);
+      text-align: center;
+      font-family: var(--font-headings);
+      font-weight: 700;
+      font-size: 11px;
+      padding: 8px 10px;
+      border-radius: 6px;
+      text-decoration: none;
+      margin-top: 10px;
+      display: block;
+      transition: background-color 0.2s ease;
+      box-shadow: 0 2px 4px rgba(20, 184, 166, 0.15);
+    }
+    
+    .cta-button:hover {
+      background-color: #0f766e;
+    }
+
+    /* ==========================================
+       FOOTER ELEMENTE (KONTAKT & QR-CODE)
+       ========================================== */
+    footer {
+      border-top: 2px solid var(--color-border);
+      padding-top: 12px;
+      margin-top: auto;
+    }
+    
+    .footer-inner {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .footer-left {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    
+    .footer-title {
+      font-family: var(--font-headings);
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--color-primary);
+    }
+    
+    .footer-meta {
+      font-size: 9px;
+      color: #6b7280;
+      line-height: 1.4;
+    }
+    
+    .footer-meta strong {
+      color: var(--color-text);
+    }
+    
+    .footer-right {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    
+    .qr-container {
+      display: flex;
+      flex-direction: column;
+      text-align: right;
+    }
+    
+    .qr-text {
+      font-size: 9px;
+      line-height: 1.3;
+      color: var(--color-text);
+      max-width: 160px;
+    }
+    
+    .qr-text strong {
+      color: var(--color-secondary);
+      font-size: 10.5px;
+      display: block;
+      margin-top: 2px;
+    }
+    
+    .qr-code {
+      width: 76px;
+      height: 76px;
+      background: var(--color-white);
+      padding: 4px;
+      border: 1px solid var(--color-border);
+      border-radius: 6px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      box-shadow: 0 2px 8px rgba(31, 78, 121, 0.05);
+      flex-shrink: 0;
+    }
+    
+    .qr-code img {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ==========================================
+       SCREEN-ONLY CONTROLLER BAR
+       ========================================== -->
+  <div class="print-bar">
+    <div class="print-info">
+      <span class="print-title">🖨️ DRUCK-ASSISTENT</span>
+      <span class="print-tip">Tipp: Wähle im Druckdialog <strong>„Hintergrundgrafiken drucken“</strong> für das beste Ergebnis.</span>
+    </div>
+    <button class="print-btn" onclick="window.print()">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="6 9 6 2 18 2 18 9"></polyline>
+        <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path>
+        <rect x="6" y="14" width="12" height="8"></rect>
+      </svg>
+      Jetzt drucken / PDF exportieren
+    </button>
+  </div>
+
+  <!-- ==========================================
+       A4 FLYER CANVAS
+       ========================================== -->
+  <div class="page">
+    
+    <!-- HEADER -->
+    <header>
+      <div class="header-left">
+        <div class="tagline">Kanton Aargau · Netzwerk für Medien & Informatik</div>
+        <h1>PICTS-Netzwerk <span>Aargau</span></h1>
+        <div class="claim-pill-wrapper">
+          <span class="claim-pill active">vernetzt.</span>
+          <span class="claim-pill">gestärkt.</span>
+          <span class="claim-pill">digital.</span>
+        </div>
+      </div>
+      
+      <div class="logo-container">
+        <img src="PICTS-Netzwerk Logo.png" class="logo-img" alt="PICTS-Netzwerk Aargau Logo">
+      </div>
+    </header>
+    
+    <!-- INTRO SECTION -->
+    <div class="intro-section">
+      <p class="intro-text">
+        Das PICTS-Netzwerk Aargau verbindet pädagogische ICT-Supporter im ganzen Kanton — für gemeinsamen Wissensaustausch, weniger Isolation und starke PICTS-Arbeit.
+      </p>
+    </div>
+    
+    <!-- STATS STRIP -->
+    <div class="stats-bar">
+      <div class="stat-item">
+        <div class="stat-number">83'530</div>
+        <div class="stat-label">Lernende im AG</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-number">192</div>
+        <div class="stat-label">Gemeinden</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-number">4<span>×</span></div>
+        <div class="stat-label">Treffen pro Jahr</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-number">2026</div>
+        <div class="stat-label">Gründungsjahr</div>
+      </div>
+    </div>
+    
+    <!-- GRID CONTENT -->
+    <div class="grid">
+      
+      <!-- SEKTION 1: WARUM? -->
+      <div class="card card-warum">
+        <div class="card-title">
+          <!-- Chain-link/Connection Icon -->
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path>
+            <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>
+          </svg>
+          Warum dieses Netzwerk?
+        </div>
+        <div class="card-content">
+          <ul>
+            <li><strong>Isolation beenden:</strong> Aargauer PICTS arbeiten oft als Einzelkämpfer an ihren Schulen. Wir schaffen stufen- und regionsübergreifende Kontakte.</li>
+            <li><strong>Kein geteiltes Wissen:</strong> Bewährte Medienkonzepte, Vorlagen und Ideen verbleiben oft lokal. Wir brechen Silos auf und teilen Ressourcen.</li>
+            <li><strong>Herausforderungen meistern:</strong> Aktuelle Zukunftsthemen wie KI im Unterricht, Datenschutz und Prävention gehen wir koordiniert an.</li>
+          </ul>
+        </div>
+      </div>
+      
+      <!-- SEKTION 2: MEHRWERT -->
+      <div class="card card-mehrwert">
+        <div class="card-title">
+          <!-- Star/Badge Icon -->
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+          </svg>
+          Dein konkreter Mehrwert
+        </div>
+        <div class="card-content">
+          <ul>
+            <li><strong>Kollegiale Praxis-Beratung:</strong> Schneller Draht zu Kolleg:innen auf Augenhöhe bei fachlichen oder organisatorischen Fragen.</li>
+            <li><strong>Gemeinsame Materialsammlung:</strong> Direkter Zugriff auf Pflichtenhefte, erprobte Lehrpläne, Elternabende und Vorlagen.</li>
+            <li><strong>Begleitung & Mentoring:</strong> Erfahrene PICTS begleiten neue Kolleg:innen beim Einstieg in die anspruchsvolle Supporter-Rolle.</li>
+            <li><strong>Fachliche Sichtbarkeit:</strong> Stärkung der Wahrnehmung der PICTS-Rolle gegenüber Schulleitungen und Bildungsbehörden.</li>
+          </ul>
+        </div>
+      </div>
+      
+      <!-- SEKTION 3: TREFFEN -->
+      <div class="card card-treffen">
+        <div class="card-title">
+          <!-- Calendar Icon -->
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+            <line x1="16" y1="2" x2="16" y2="6"></line>
+            <line x1="8" y1="2" x2="8" y2="6"></line>
+            <line x1="3" y1="10" x2="21" y2="10"></line>
+          </svg>
+          Wie wir uns treffen
+        </div>
+        <div class="card-content">
+          <p style="margin: 0 0 8px 0; font-size: 10px; color: #4b5563;">
+            Kompakt, praxisorientiert und unkompliziert: 4 Treffen pro Schuljahr für jeweils 2 Stunden, abwechselnd online und an Schulen.
+          </p>
+          <div class="timeline">
+            <div class="timeline-step">
+              <div class="timeline-badge">45'</div>
+              <div class="timeline-text">
+                <strong>Fachinput & Praxis-Updates</strong>
+                <span>KI-Richtlinien, Tool-Tests, Unterrichtsbeispiele</span>
+              </div>
+            </div>
+            <div class="timeline-step">
+              <div class="timeline-badge">45'</div>
+              <div class="timeline-text">
+                <strong>Kollegialer Austausch</strong>
+                <span>Fragen besprechen, Lösungen teilen, Beratung</span>
+              </div>
+            </div>
+            <div class="timeline-step">
+              <div class="timeline-badge">30'</div>
+              <div class="timeline-text">
+                <strong>Offene Vernetzung</strong>
+                <span>Gemeinsamer Apéro & informelles Fachsimpeln</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- SEKTION 4: MITMACHEN (CTA) -->
+      <div class="card card-cta">
+        <div class="card-title">
+          <!-- User plus Icon -->
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+            <circle cx="8.5" cy="7" r="4"></circle>
+            <line x1="20" y1="8" x2="20" y2="14"></line>
+            <line x1="23" y1="11" x2="17" y2="11"></line>
+          </svg>
+          Werde Teil des Netzwerks!
+          <span class="cta-badge">Kostenlos</span>
+        </div>
+        <div class="card-content">
+          <ul style="margin-bottom: 4px;">
+            <li><strong>Zielgruppe:</strong> PICTS-Lehrpersonen (Zyklen 1–3) und Schulleitungen an Volksschulen im Aargau.</li>
+            <li><strong>Effizienz:</strong> Nur 4 Halbtage pro Jahr. Die gewonnene Arbeitszeit im Schulalltag amortisiert das sofort.</li>
+            <li><strong>Keine Verpflichtungen:</strong> Unabhängige, nicht kommerzielle und kollegiale Initiative.</li>
+          </ul>
+          <a href="mailto:info@picts-ag.ch" class="cta-button">Jetzt formlos anmelden via info@picts-ag.ch</a>
+        </div>
+      </div>
+      
+    </div>
+    
+    <!-- FOOTER & QR CODE -->
+    <footer>
+      <div class="footer-inner">
+        <div class="footer-left">
+          <div class="footer-title">PICTS-Netzwerk Kanton Aargau</div>
+          <div class="footer-meta">
+            Eine fachliche Initiative von und für pädagogische ICT-Supporter.<br>
+            Koordination & Ansprechpartner: <strong>Sascha Lüscher</strong>, Hunzenschwil (AG)<br>
+            Offizielle E-Mail für Anfragen: <strong>info@picts-ag.ch</strong>
+          </div>
+        </div>
+        
+        <div class="footer-right">
+          <div class="qr-container">
+            <span class="qr-text">
+              QR-Code scannen, um die Website direkt aufzurufen &amp; mitzumachen:
+              <strong>www.picts-ag.ch</strong>
+            </span>
+          </div>
+          <div class="qr-code">
+            <img src="qrcode.svg" alt="QR-Code zur Website www.picts-ag.ch">
+          </div>
+        </div>
+      </div>
+    </footer>
+    
+  </div>
+
+</body>
+</html>

@@ -34,10 +34,11 @@ Die Website soll von Schul- und Behördennetzwerken nicht mehr als verdächtig e
 - [x] **X-Frame-Options**, **X-Content-Type-Options**, **Referrer-Policy**, **Permissions-Policy**
 - [x] **Null externe Verbindungen** – keine Google Fonts, kein Formspree, keine CDNs
 
-#### Externe Abhängigkeiten eliminiert
+#### Externe Abhängigkeiten & Services
 - [x] **Google Fonts → lokal** gehostet (8 woff2-Dateien in `/fonts/`)
 - [x] **Formspree → entfernt** – reiner mailto-Versand, kein US-Drittanbieter
-- [x] **Datenschutzerklärung aktualisiert** – Fonts lokal, kein Formspree mehr
+- [x] **MailerLite-Integration** – Sichere Anbindung über Netlify Serverless Functions (`netlify/functions/subscribe.js`) zum Schutz des API-Schlüssels und resilienter clientseitiger Mailto-Fallback-Mechanismus in `js/script.js`.
+- [x] **Datenschutzerklärung & Disclaimer** – Rechtstexte in `datenschutz.html` und `index.html` DSG-konform für MailerLite aktualisiert.
 
 #### Code-Qualität
 - [x] **Alle Inline-Styles → CSS** ausgelagert (0 verbleibend, CSP-kompatibel)
