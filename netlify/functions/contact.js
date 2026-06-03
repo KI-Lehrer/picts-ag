@@ -105,7 +105,7 @@ exports.handler = async function (event, context) {
 
     // 3. UMGEBUNGSVARIABLEN ÜBERPRÜFEN
     const resendApiKey = process.env.RESEND_API_KEY;
-    const toEmail = process.env.CONTACT_TO_EMAIL;
+    const toEmail = process.env.CONTACT_TO_EMAIL || 'info@picts-ag.ch';
     const fromEmail = process.env.CONTACT_FROM_EMAIL;
 
     if (!resendApiKey || !toEmail || !fromEmail) {

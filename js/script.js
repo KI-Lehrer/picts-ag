@@ -40,7 +40,9 @@
     const formData = new FormData(form);
     
     // Extract input fields
-    const name = (formData.get('name') || '').trim();
+    const vorname = (formData.get('vorname') || '').trim();
+    const nachname = (formData.get('nachname') || '').trim();
+    const name = `${vorname} ${nachname}`.trim();
     const email = (formData.get('email') || '').trim();
     const nachricht = (formData.get('nachricht') || '').trim();
     const schule = (formData.get('schule') || '').trim();
@@ -50,8 +52,11 @@
 
     // Client-side validation
     let validationErrors = [];
-    if (!name) {
-      validationErrors.push('Bitte gib deinen Namen ein.');
+    if (!vorname) {
+      validationErrors.push('Bitte gib deinen Vornamen ein.');
+    }
+    if (!nachname) {
+      validationErrors.push('Bitte gib deinen Nachnamen ein.');
     }
     if (!email) {
       validationErrors.push('Bitte gib deine E-Mail-Adresse ein.');
