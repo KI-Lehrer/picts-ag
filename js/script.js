@@ -1,77 +1,94 @@
 // ──────────────────────────────────────────────────────────────
-// PICTS-Netzwerk Aargau – Kontaktformular & MailerLite
+// PICTS-Netzwerk Aargau – Kontaktformular & Resend Integration
 // ──────────────────────────────────────────────────────────────
 
 (function () {
   'use strict';
 
   const form = document.getElementById('contact-form');
-  const success = document.getElementById('form-success');
+  const successMessage = document.getElementById('form-success');
 
-  // Nur auf Seiten mit Formular ausführen (nicht auf Impressum/Datenschutz)
-  if (!form || !success) return;
+  // Create an error container if it doesn't exist yet
+  let errorMessage = document.getElementById('form-error');
+  if (form && !errorMessage) {
+    errorMessage = document.createElement('div');
+    errorMessage.id = 'form-error';
+    errorMessage.setAttribute('role', 'alert');
+    form.parentNode.insertBefore(errorMessage, form.nextSibling);
+  }
 
-  // Ladezustand des Buttons steuern
+  // Execute only on pages that contain the contact form
+  if (!form || !successMessage) return;
+
   const submitBtn = form.querySelector('.form-submit');
   const originalBtnText = submitBtn ? submitBtn.innerHTML : 'Interesse anmelden →';
 
-  // Hilfsfunktion zur Erstellung des Mailto-Links (Fallback)
-  function triggerMailtoFallback(data) {
-    const vorname = data.get('vorname') || '';
-    const nachname = data.get('nachname') || '';
-    const email = data.get('email') || '';
-    const schule = data.get('schule') || '';
-    const telefon = data.get('telefon') || '';
-    const interesse = data.get('interesse') || '';
-    const nachricht = data.get('nachricht') || '';
-
-    const name = (vorname + ' ' + nachname).trim();
-
-    const body = [
-      'Name: ' + name,
-      'E-Mail: ' + email,
-      'Schule: ' + schule,
-      'Telefon: ' + telefon,
-      'Interesse: ' + interesse,
-      'Nachricht: ' + nachricht
-    ].join('\n');
-
-    window.location.href = 'mailto:info@picts-ag.ch'
-      + '?subject=' + encodeURIComponent('Interesse PICTS-Netzwerk Aargau')
-      + '&body=' + encodeURIComponent(body);
-
-    // Erfolgsanzeige trotzdem anzeigen, da die E-Mail geöffnet wurde
-    setTimeout(function () {
-      form.style.display = 'none';
-      success.innerHTML = '✓ E-Mail-Programm geöffnet! Bitte sende die vorbereitete Mail ab.';
-      success.style.display = 'block';
-    }, 1000);
+  // Email format validation helper
+  function isValidEmail(email) {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
   }
 
   form.addEventListener('submit', async function (e) {
     e.preventDefault();
-    
+
+    // Reset messages and states
+    errorMessage.style.display = 'none';
+    errorMessage.textContent = '';
+    successMessage.style.display = 'none';
+
     const formData = new FormData(form);
     
-    // UI in Ladezustand versetzen
+    // Extract input fields
+    const name = (formData.get('name') || '').trim();
+    const email = (formData.get('email') || '').trim();
+    const nachricht = (formData.get('nachricht') || '').trim();
+    const schule = (formData.get('schule') || '').trim();
+    const telefon = (formData.get('telefon') || '').trim();
+    const interesse = (formData.get('interesse') || '').trim();
+    const honeypot = formData.get('honeypot_field') || '';
+
+    // Client-side validation
+    let validationErrors = [];
+    if (!name) {
+      validationErrors.push('Bitte gib deinen Namen ein.');
+    }
+    if (!email) {
+      validationErrors.push('Bitte gib deine E-Mail-Adresse ein.');
+    } else if (!isValidEmail(email)) {
+      validationErrors.push('Bitte gib eine gültige E-Mail-Adresse ein.');
+    }
+    if (!nachricht) {
+      validationErrors.push('Bitte gib eine Nachricht ein.');
+    }
+
+    if (validationErrors.length > 0) {
+      errorMessage.innerHTML = '<strong>Es sind Fehler aufgetreten:</strong><br>' + validationErrors.join('<br>');
+      errorMessage.style.display = 'block';
+      errorMessage.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      return;
+    }
+
+    // Set UI to loading state
     if (submitBtn) {
       submitBtn.disabled = true;
       submitBtn.innerHTML = '<span class="loading-spinner"></span> Wird gesendet...';
     }
 
+    // Prepare JSON payload
     const payload = {
-      vorname: formData.get('vorname') || '',
-      nachname: formData.get('nachname') || '',
-      email: formData.get('email') || '',
-      schule: formData.get('schule') || '',
-      telefon: formData.get('telefon') || '',
-      interesse: formData.get('interesse') || '',
-      nachricht: formData.get('nachricht') || ''
+      name,
+      email,
+      nachricht,
+      schule,
+      telefon,
+      interesse,
+      honeypot_field: honeypot
     };
 
     try {
-      // Sende Daten an unsere Netlify Serverless Function
-      const response = await fetch('/.netlify/functions/subscribe', {
+      // Send data to the Netlify Serverless Function
+      const response = await fetch('/.netlify/functions/contact', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -79,26 +96,34 @@
         body: JSON.stringify(payload)
       });
 
-      const result = await response.json();
+      let result;
+      const responseText = await response.text();
+      try {
+        result = JSON.parse(responseText);
+      } catch (err) {
+        result = { error: 'Ungültige Serverantwort.' };
+      }
 
       if (response.ok && result.success) {
-        // Erfolg! Formular ausblenden und Erfolgsmeldung anzeigen
+        // Success: Hide form and show success message
         form.style.display = 'none';
-        success.style.display = 'block';
-        success.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        successMessage.style.display = 'block';
+        successMessage.scrollIntoView({ behavior: 'smooth', block: 'center' });
       } else {
-        // API-Fehler (z.B. MailerLite-Fehler oder Key fehlt) -> Fallback zu Mailto
-        console.warn('API-Übermittlung fehlgeschlagen:', result.error || 'Unbekannter Fehler');
-        alert('Die automatische Anmeldung ist fehlgeschlagen. Wir öffnen dein E-Mail-Programm, damit du dich direkt per E-Mail anmelden kannst.');
-        triggerMailtoFallback(formData);
+        // Validation/Server error
+        const errorText = result.error || 'Es gab ein Problem beim Übermitteln der Nachricht.';
+        errorMessage.innerHTML = `<strong>Fehler:</strong> ${errorText}`;
+        errorMessage.style.display = 'block';
+        errorMessage.scrollIntoView({ behavior: 'smooth', block: 'center' });
       }
     } catch (error) {
-      // Netzwerkfehler oder Verbindungsfehler -> Fallback zu Mailto
-      console.error('Netzwerkfehler bei Übermittlung:', error);
-      alert('Verbindungsfehler. Wir öffnen dein E-Mail-Programm, damit du dich direkt per E-Mail anmelden kannst.');
-      triggerMailtoFallback(formData);
+      // Connection/Network error
+      console.error('Netzwerkfehler:', error);
+      errorMessage.innerHTML = '<strong>Verbindungsfehler:</strong> Die Anfrage konnte nicht gesendet werden. Bitte überprüfe deine Internetverbindung und versuche es erneut.';
+      errorMessage.style.display = 'block';
+      errorMessage.scrollIntoView({ behavior: 'smooth', block: 'center' });
     } finally {
-      // Ladezustand zurücksetzen (falls Formular nicht ausgeblendet wurde)
+      // Restore submit button state if submission failed
       if (submitBtn && form.style.display !== 'none') {
         submitBtn.disabled = false;
         submitBtn.innerHTML = originalBtnText;

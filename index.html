@@ -533,23 +533,23 @@
         </div>
       </div>
       <div class="contact-form">
-        <form id="contact-form" action="#" method="POST">
-          <div class="form-row">
-            <div class="form-group">
-              <label for="name">Vorname</label>
-              <input type="text" id="name" name="vorname" placeholder="Erika" required>
-            </div>
-            <div class="form-group">
-              <label for="nachname">Nachname</label>
-              <input type="text" id="nachname" name="nachname" placeholder="Mustermann" required>
-            </div>
+        <form id="contact-form" action="#" method="POST" novalidate>
+          <!-- Honeypot-Feld als Spam-Schutz (für Benutzer nicht sichtbar, tabindex="-1" verhindert Tastatur-Fokus) -->
+          <div class="sr-only-honeypot" aria-hidden="true">
+            <label for="honeypot_field">Bitte dieses Feld nicht ausfüllen, falls du ein Mensch bist:</label>
+            <input type="text" id="honeypot_field" name="honeypot_field" tabindex="-1" autocomplete="off">
+          </div>
+
+          <div class="form-group">
+            <label for="name">Name (Vorname & Nachname)</label>
+            <input type="text" id="name" name="name" placeholder="Erika Mustermann" required aria-required="true">
           </div>
           <div class="form-group">
             <label for="email">E-Mail-Adresse</label>
-            <input type="email" id="email" name="email" placeholder="erika@schule.ag.ch" required>
+            <input type="email" id="email" name="email" placeholder="erika@schule.ag.ch" required aria-required="true">
           </div>
           <div class="form-group">
-            <label for="schule">Schulgemeinde / Schule</label>
+            <label for="schule">Schulgemeinde / Schule (optional)</label>
             <input type="text" id="schule" name="schule" placeholder="Primarschule Musterdorf">
           </div>
           <div class="form-group">
@@ -557,7 +557,7 @@
             <input type="tel" id="telefon" name="telefon" placeholder="+41 79 000 00 00">
           </div>
           <div class="form-group">
-            <label for="interesse">Mein Interesse</label>
+            <label for="interesse">Mein Interesse (optional)</label>
             <select id="interesse" name="interesse">
               <option value="">Bitte wählen …</option>
               <option value="mitmachen">Am Netzwerk teilnehmen</option>
@@ -567,16 +567,17 @@
             </select>
           </div>
           <div class="form-group">
-            <label for="nachricht">Nachricht (optional)</label>
-            <textarea id="nachricht" name="nachricht" placeholder="Was bewegt dich? Was erwartest du vom Netzwerk?"></textarea>
+            <label for="nachricht">Nachricht</label>
+            <textarea id="nachricht" name="nachricht" placeholder="Was bewegt dich? Was erwartest du vom Netzwerk?" required aria-required="true"></textarea>
           </div>
           <button type="submit" class="form-submit">Interesse anmelden →</button>
           <div class="form-privacy-note">
-            <p><strong>Datenschutz-Hinweis:</strong> Deine Angaben werden ausschliesslich zur Bearbeitung deiner Anfrage und zur Vernetzung im Rahmen des PICTS-Netzwerks verwendet. Die Übermittlung erfolgt verschlüsselt an unseren Partner MailerLite. Details: <a href="datenschutz.html">Datenschutzerklärung</a>.</p>
+            <p><strong>Datenschutz-Hinweis:</strong> Deine Angaben werden ausschliesslich zur Bearbeitung deiner Anfrage und zur Vernetzung im Rahmen des PICTS-Netzwerks verwendet. Die Übermittlung erfolgt verschlüsselt per E-Mail über unseren E-Mail-Dienst Resend. Details: <a href="datenschutz.html">Datenschutzerklärung</a>.</p>
           </div>
         </form>
-        <div id="form-success">
-          ✓ Vielen Dank! Wir melden uns bald bei dir.
+        <div id="form-error" role="alert" style="display: none;"></div>
+        <div id="form-success" role="alert" style="display: none;">
+          ✓ Vielen Dank! Deine Nachricht wurde erfolgreich übermittelt. Wir melden uns bald bei dir.
         </div>
       </div>
     </div>
