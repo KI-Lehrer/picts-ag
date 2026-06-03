@@ -1,0 +1,25 @@
+backend:
+  name: git-gateway
+  branch: main
+
+media_folder: "img/uploads"
+public_folder: "/img/uploads"
+
+collections:
+  - name: "news"
+    label: "Netzwerk-Meldungen"
+    label_singular: "Meldung"
+    folder: "news"
+    create: true
+    extension: "json"
+    format: "json"
+    slug: "{{year}}-{{month}}-{{day}}-{{slug}}"
+    summary: "{{title}} ({{date}})"
+    fields:
+      - { label: "Titel", name: "title", widget: "string" }
+      - { label: "Datum", name: "date", widget: "date", format: "YYYY-MM-DD", default: "" }
+      - { label: "Kategorie", name: "category", widget: "select", options: ["Initiative", "Technik", "Termine"], default: "Initiative" }
+      - { label: "Textinhalt", name: "body", widget: "text" }
+      - { label: "Aktion / Link-Ziel (optional)", name: "link_url", widget: "string", required: false, description: "Z.B. flyer/ oder datenschutz.html oder eine externe URL" }
+      - { label: "Link-Text (optional)", name: "link_text", widget: "string", required: false, description: "Z.B. Flyer anzeigen oder Mehr erfahren" }
+      - { label: "Sichtbar", name: "visible", widget: "boolean", default: true, description: "Wenn deaktiviert, wird dieser Beitrag auf der Website ausgeblendet." }

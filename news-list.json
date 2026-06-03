@@ -1,0 +1,29 @@
+[
+  {
+    "title": "Offizieller PICTS-Netzwerk Flyer online",
+    "date": "2026-06-01",
+    "category": "Initiative",
+    "body": "Unser zweiseitiger, informativer Flyer für das PICTS-Netzwerk Kanton Aargau im A4-Hochformat steht ab sofort zum Download bereit. Er eignet sich hervorragend zur Information von Kolleginnen, Kollegen und Schulleitungen an Ihrem Schulstandort.",
+    "link_url": "flyer/",
+    "link_text": "Flyer drucken & downloaden",
+    "visible": true
+  },
+  {
+    "title": "Website vollständig DSG-konform überarbeitet",
+    "date": "2026-05-15",
+    "category": "Technik",
+    "body": "Um maximale Datensicherheit und Barrierefreiheit in restriktiven Schulnetzwerken zu garantieren, haben wir unsere Website auf Netlify gehostet. Es werden keinerlei externe Skripte, CDNs oder Tracker geladen — die Newsletter-Subscription läuft sicher über serverlose Funktionen.",
+    "link_url": "datenschutz.html",
+    "link_text": "Datenschutzerklärung lesen",
+    "visible": true
+  },
+  {
+    "title": "Planungen für Kick-off Treffen starten",
+    "date": "2026-04-30",
+    "category": "Termine",
+    "body": "Wir bereiten unser allererstes Netzwerktreffen für den Herbst 2026 vor! Geplant ist ein zweistündiges, praxisnahes Austauschformat mit fachlichem Input (z. B. zu KI im Unterricht). Wenn Sie eine Gastgeber-Schule vorschlagen möchten, kontaktieren Sie uns.",
+    "link_url": "#kontakt",
+    "link_text": "Jetzt mitwirken & anmelden",
+    "visible": true
+  }
+]

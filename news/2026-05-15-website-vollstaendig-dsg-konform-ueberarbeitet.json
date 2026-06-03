@@ -1,0 +1,9 @@
+{
+  "title": "Website vollständig DSG-konform überarbeitet",
+  "date": "2026-05-15",
+  "category": "Technik",
+  "body": "Um maximale Datensicherheit und Barrierefreiheit in restriktiven Schulnetzwerken zu garantieren, haben wir unsere Website auf Netlify gehostet. Es werden keinerlei externe Skripte, CDNs oder Tracker geladen — die Newsletter-Subscription läuft sicher über serverlose Funktionen.",
+  "link_url": "datenschutz.html",
+  "link_text": "Datenschutzerklärung lesen",
+  "visible": true
+}

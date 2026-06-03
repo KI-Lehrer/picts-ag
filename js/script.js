@@ -5,6 +5,91 @@
 (function () {
   'use strict';
 
+  // ── NETLIFY IDENTITY REDIRECT ──
+  // Redirect login/invite hashes (e.g. from invite emails) to /admin/
+  if (window.location.hash && (
+    window.location.hash.startsWith('#invite_token=') ||
+    window.location.hash.startsWith('#recovery_token=') ||
+    window.location.hash.startsWith('#email_change_token=') ||
+    window.location.hash.startsWith('#access_token=')
+  )) {
+    window.location.href = '/admin/' + window.location.hash;
+    return;
+  }
+
+  // ── NEWS LOADER ──
+  const newsGrid = document.getElementById('news-grid');
+  if (newsGrid) {
+    loadNews(newsGrid);
+  }
+
+  async function loadNews(container) {
+    try {
+      const response = await fetch('/news-list.json');
+      if (!response.ok) throw new Error('Failed to load news');
+      const newsItems = await response.json();
+
+      if (newsItems.length > 0) {
+        // Clear static placeholder cards
+        container.innerHTML = '';
+
+        newsItems.forEach(item => {
+          const card = document.createElement('article');
+          card.className = 'blog-card';
+
+          let displayDate = item.date;
+          if (item.date) {
+            const dateObj = new Date(item.date);
+            if (!isNaN(dateObj.getTime())) {
+              const options = { day: 'numeric', month: 'long', year: 'numeric' };
+              displayDate = dateObj.toLocaleDateString('de-CH', options);
+            }
+          }
+
+          const categoryClass = (item.category || 'initiative').toLowerCase();
+
+          let linkHtml = '';
+          if (item.link_url && item.link_text) {
+            const isExternalOrPdf = item.link_url.startsWith('http') || item.link_url.endsWith('.pdf');
+            const targetAttr = isExternalOrPdf ? ' target="_blank" rel="noopener noreferrer"' : '';
+            linkHtml = `
+              <a href="${escapeHtml(item.link_url)}" class="blog-link"${targetAttr}>
+                ${escapeHtml(item.link_text)}
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+              </a>
+            `;
+          }
+
+          card.innerHTML = `
+            <div class="blog-header">
+              <div class="blog-meta">
+                <span class="blog-date">${escapeHtml(displayDate)}</span>
+                <span class="blog-badge ${escapeHtml(categoryClass)}">${escapeHtml(item.category)}</span>
+              </div>
+              <h3>${escapeHtml(item.title)}</h3>
+            </div>
+            <p class="blog-excerpt">${escapeHtml(item.body)}</p>
+            ${linkHtml}
+          `;
+          container.appendChild(card);
+        });
+      }
+    } catch (error) {
+      console.warn('Could not load dynamic news, falling back to static HTML:', error);
+    }
+  }
+
+  function escapeHtml(str) {
+    if (!str) return '';
+    return str
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
+  }
+
+  // ── KONTAKTFORMULAR LOGIK ──
   const form = document.getElementById('contact-form');
   const successMessage = document.getElementById('form-success');
 
