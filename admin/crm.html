@@ -38,9 +38,12 @@
             <h2>Eingegangene Anfragen</h2>
             <div class="btn-group">
               <button id="add-contact-btn" class="btn-primary" style="background-color: #2ecc71;">+ Neuer Kontakt</button>
+              <button id="export-btn" class="btn-primary" style="background-color: #9b59b6;">Exportieren (XLSX)</button>
+              <button id="import-btn" class="btn-primary" style="background-color: #e67e22;">Importieren (XLSX)</button>
               <button id="refresh-btn" class="btn-primary">Aktualisieren</button>
             </div>
           </div>
+          <input type="file" id="import-file-input" style="display: none;" accept=".xlsx, .xls" />
           <div class="contacts-container" id="contacts-container">
             <div class="loading-state">Lade Kontakte...</div>
           </div>
@@ -118,6 +121,7 @@
     </div>
   </div>
 
-  <script src="crm.js?v=4"></script>
+  <script src="xlsx.full.min.js"></script>
+  <script src="crm.js?v=5"></script>
 </body>
 </html>

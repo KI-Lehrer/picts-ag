@@ -158,9 +158,7 @@ function closeEditModal() {
   document.getElementById('edit-modal').style.display = 'none';
 }
 
-// Global binden für onclick-Attribute in HTML
-window.deleteContact = deleteContact;
-window.openEditModal = openEditModal;
+// Global binden für Modal-Steuerung
 window.openCreateModal = openCreateModal;
 window.closeEditModal = closeEditModal;
 
@@ -211,8 +209,8 @@ function renderContacts(contacts) {
             </div>
           </div>
           <div class="btn-group">
-            <button type="button" class="btn-secondary" style="padding: 0.3rem 0.6rem; font-size: 0.85rem;" onclick="openEditModal('${contact.id}')">Bearbeiten</button>
-            <button type="button" class="delete-btn" onclick="deleteContact('${contact.id}')">Löschen</button>
+            <button type="button" class="btn-secondary edit-btn" style="padding: 0.3rem 0.6rem; font-size: 0.85rem;" data-id="${contact.id}">Bearbeiten</button>
+            <button type="button" class="delete-btn" data-id="${contact.id}">Löschen</button>
           </div>
         </div>
         <div class="contact-details">
@@ -252,6 +250,154 @@ function escapeHTML(str) {
   );
 }
 
+// Excel Export Funktion
+function exportToExcel() {
+  if (loadedContacts.length === 0) {
+    alert("Keine Kontakte zum Exportieren vorhanden.");
+    return;
+  }
+
+  const dataToExport = loadedContacts.map(contact => {
+    let formattedDate = '';
+    if (contact.createdAt) {
+      const d = new Date(contact.createdAt);
+      if (!isNaN(d.getTime())) {
+        formattedDate = d.toLocaleString('de-CH');
+      }
+    }
+
+    return {
+      'ID': contact.id || '',
+      'Name': contact.name || '',
+      'E-Mail': contact.email || '',
+      'Schule/Gemeinde': contact.schule || '',
+      'Telefon': contact.telefon || '',
+      'Interesse': translateInteresse(contact.interesse),
+      'Nachricht': contact.nachricht || '',
+      'Status': contact.status || 'Neu',
+      'Interne Notizen': contact.notizen || '',
+      'Erstellt am': formattedDate
+    };
+  });
+
+  const worksheet = XLSX.utils.json_to_sheet(dataToExport);
+  const workbook = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(workbook, worksheet, "Kontakte");
+
+  XLSX.writeFile(workbook, `PICTS_Netzwerk_Kontakte_${new Date().toISOString().split('T')[0]}.xlsx`);
+}
+
+// Excel Import Handler
+async function handleImport(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+
+  const reader = new FileReader();
+  reader.onload = async function(e) {
+    try {
+      const data = new Uint8Array(e.target.result);
+      const workbook = XLSX.read(data, { type: 'array' });
+      const firstSheetName = workbook.SheetNames[0];
+      const worksheet = workbook.Sheets[firstSheetName];
+      
+      const jsonData = XLSX.utils.sheet_to_json(worksheet);
+      if (jsonData.length === 0) {
+        alert("Die Excel-Datei enthält keine Daten.");
+        return;
+      }
+
+      if (!confirm(`Möchtest du wirklich ${jsonData.length} Kontakte importieren?`)) {
+        event.target.value = '';
+        return;
+      }
+
+      const user = netlifyIdentity.currentUser();
+      if (!user) {
+        alert("Bitte melde dich an, um Daten zu importieren.");
+        return;
+      }
+
+      const token = await user.jwt();
+      let importedCount = 0;
+      let failedCount = 0;
+
+      const contactsContainer = document.getElementById('contacts-container');
+      contactsContainer.innerHTML = `<div class="loading-state">Importiere Kontakte (0 / ${jsonData.length})... Bitte warten.</div>`;
+
+      for (let i = 0; i < jsonData.length; i++) {
+        const row = jsonData[i];
+        
+        const name = row['Name'] || row['name'] || '';
+        const email = row['E-Mail'] || row['email'] || row['Email'] || '';
+        
+        if (!name.toString().trim() || !email.toString().trim()) {
+          console.warn(`Zeile ${i + 2} übersprungen: Name und E-Mail sind Pflichtfelder.`, row);
+          failedCount++;
+          continue;
+        }
+
+        let interestValue = row['Interesse'] || row['interesse'] || '';
+        const deMap = {
+          'Am Netzwerk teilnehmen': 'mitmachen',
+          'Im Kernteam mitarbeiten': 'kernteam',
+          'An Treffen teilnehmen': 'treffen',
+          'Interesse anmelden': 'interesse',
+          'Informationen erhalten': 'infos'
+        };
+        if (deMap[interestValue]) {
+          interestValue = deMap[interestValue];
+        }
+
+        const payload = {
+          name: name.toString().trim(),
+          email: email.toString().trim(),
+          schule: row['Schule/Gemeinde'] || row['schule'] || row['Schule'] ? (row['Schule/Gemeinde'] || row['schule'] || row['Schule']).toString().trim() : '',
+          telefon: row['Telefon'] || row['telefon'] ? (row['Telefon'] || row['telefon']).toString().trim() : '',
+          interesse: interestValue.toString().trim(),
+          nachricht: row['Nachricht'] || row['nachricht'] ? (row['Nachricht'] || row['nachricht']).toString().trim() : '',
+          status: row['Status'] || row['status'] || 'Neu',
+          notizen: row['Interne Notizen'] || row['notizen'] || row['Notizen'] ? (row['Interne Notizen'] || row['notizen'] || row['Notizen']).toString().trim() : ''
+        };
+
+        try {
+          const response = await fetch('/.netlify/functions/contacts', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify(payload)
+          });
+
+          if (response.ok) {
+            importedCount++;
+          } else {
+            const errBody = await response.text();
+            console.error(`Fehler beim Importieren von Zeile ${i + 2}:`, errBody);
+            failedCount++;
+          }
+        } catch (fetchErr) {
+          console.error(`Netzwerkfehler beim Importieren von Zeile ${i + 2}:`, fetchErr);
+          failedCount++;
+        }
+
+        contactsContainer.innerHTML = `<div class="loading-state">Importiere Kontakte (${importedCount + failedCount} / ${jsonData.length})... Bitte warten.</div>`;
+      }
+
+      alert(`Import abgeschlossen!\nErfolgreich: ${importedCount}\nFehlgeschlagen: ${failedCount}`);
+      loadContacts(user);
+
+    } catch (err) {
+      alert("Fehler beim Lesen der Excel-Datei: " + err.message);
+      loadContacts(netlifyIdentity.currentUser());
+    } finally {
+      event.target.value = '';
+    }
+  };
+
+  reader.readAsArrayBuffer(file);
+}
+
 document.addEventListener('DOMContentLoaded', () => {
   const refreshBtn = document.getElementById('refresh-btn');
   const addContactBtn = document.getElementById('add-contact-btn');
@@ -259,6 +405,10 @@ document.addEventListener('DOMContentLoaded', () => {
   const editForm = document.getElementById('edit-contact-form');
   const closeModalBtn = document.getElementById('close-modal-btn');
   const cancelEditBtn = document.getElementById('cancel-edit-btn');
+  const contactsContainer = document.getElementById('contacts-container');
+  const exportBtn = document.getElementById('export-btn');
+  const importBtn = document.getElementById('import-btn');
+  const importFileInput = document.getElementById('import-file-input');
 
   if (logoutBtn) {
     logoutBtn.addEventListener('click', () => {
@@ -286,6 +436,35 @@ document.addEventListener('DOMContentLoaded', () => {
 
   if (closeModalBtn) closeModalBtn.addEventListener('click', closeEditModal);
   if (cancelEditBtn) cancelEditBtn.addEventListener('click', closeEditModal);
+
+  // Klick-Delegierung für Bearbeiten & Löschen Buttons, da CSP Inline JavaScript verbietet
+  if (contactsContainer) {
+    contactsContainer.addEventListener('click', (e) => {
+      const editBtn = e.target.closest('.edit-btn');
+      const deleteBtn = e.target.closest('.delete-btn');
+      if (editBtn) {
+        const id = editBtn.getAttribute('data-id');
+        openEditModal(id);
+      } else if (deleteBtn) {
+        const id = deleteBtn.getAttribute('data-id');
+        deleteContact(id);
+      }
+    });
+  }
+
+  // Excel Buttons binden
+  if (exportBtn) {
+    exportBtn.addEventListener('click', () => {
+      exportToExcel();
+    });
+  }
+
+  if (importBtn && importFileInput) {
+    importBtn.addEventListener('click', () => {
+      importFileInput.click();
+    });
+    importFileInput.addEventListener('change', handleImport);
+  }
 
   if (editForm) {
     editForm.addEventListener('submit', async (e) => {

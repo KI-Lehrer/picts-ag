@@ -25,5 +25,13 @@
     "link_url": "#kontakt",
     "link_text": "Jetzt mitwirken & anmelden",
     "visible": true
+  },
+  {
+    "date": "",
+    "category": "Technik",
+    "visible": true,
+    "body": "Neues zum Bann des Fable 5 / Mythos 5 Modells durch die US-Regierung: Die US-Regierung hat Anthropic letzte Woche per Exportkontroll-Schreiben gezwungen, seine neuesten KI-Modelle Fable 5 und Mythos 5 global vom Netz zu nehmen – offiziell wegen „nationaler Sicherheitsbedenken“, laut TechCrunch und Axios Berichten faktisch aber offenbar nicht wegen eines klassischen Jailbreaks, sondern aus politischen und machtstrategischen Gründen. Der Exportbann untersagte zunächst allen Nicht-US-Bürgern – inklusive vieler Anthropic-Mitarbeiter – den Zugriff auf die Modelle, woraufhin Anthropic aus Compliance-Gründen beide Systeme für alle Kunden abschaltete. Sicherheitsforscherin Katie Moussouris kritisiert, dass das zugrunde liegende Amazon-Paper keinen echten Guardrail-Bypass zeige, sondern normale „Bugfix“-Funktionen, wie sie jedes starke Sicherheitsmodell liefern müsse – ein Verhalten, das sich zudem mit Modellen von OpenAI, Anthropic (Opus, Sonnet) und chinesischen Anbietern wie Kimi nachbilden lasse. Dutzende namhafte Cybersecurity-Experten warnen in einem offenen Brief, der Bann nehme Verteidigern in den USA essenzielle Werkzeuge aus der Hand und sei damit „gefährlich“, während Beobachter von einem politisch motivierten Präzedenzfall sprechen, der Zweifel an der Verlässlichkeit US-amerikanischer KI für kritische Infrastrukturen weckt.\n\n",
+    "title": "Fable 5 von US-Regierung gesperrt",
+    "link_url": " https://techcrunch.com/2026/06/15/the-us-governments-anthropic-models-ban-was-never-about-an-ai-jailbreak/"
   }
 ]
