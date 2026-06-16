@@ -36,7 +36,10 @@
         <div class="glass-card">
           <div class="card-header">
             <h2>Eingegangene Anfragen</h2>
-            <button id="refresh-btn" class="btn-primary">Aktualisieren</button>
+            <div class="btn-group">
+              <button id="add-contact-btn" class="btn-primary" style="background-color: #2ecc71;">+ Neuer Kontakt</button>
+              <button id="refresh-btn" class="btn-primary">Aktualisieren</button>
+            </div>
           </div>
           <div class="contacts-container" id="contacts-container">
             <div class="loading-state">Lade Kontakte...</div>
@@ -115,6 +118,6 @@
     </div>
   </div>
 
-  <script src="crm.js"></script>
+  <script src="crm.js?v=4"></script>
 </body>
 </html>

@@ -98,13 +98,21 @@ async function deleteContact(id) {
   }
 }
 
-// Modal Öffnen / Schließen
+// Modal Öffnen für Bearbeitung (Edit Mode)
 function openEditModal(id) {
   const contact = loadedContacts.find(c => c.id === id);
   if (!contact) {
     alert("Kontakt nicht gefunden.");
     return;
   }
+
+  // Modal-Titel anpassen
+  const modalHeader = document.querySelector('#edit-modal h2');
+  if (modalHeader) modalHeader.textContent = 'Kontakt bearbeiten';
+
+  // Modus setzen
+  const editForm = document.getElementById('edit-contact-form');
+  if (editForm) editForm.setAttribute('data-mode', 'edit');
 
   // Formularfelder befüllen
   document.getElementById('edit-id').value = contact.id;
@@ -121,6 +129,31 @@ function openEditModal(id) {
   document.getElementById('edit-modal').style.display = 'flex';
 }
 
+// Modal Öffnen für Neuerstellung (Create Mode)
+function openCreateModal() {
+  // Modal-Titel anpassen
+  const modalHeader = document.querySelector('#edit-modal h2');
+  if (modalHeader) modalHeader.textContent = 'Neuen Kontakt anlegen';
+
+  // Modus setzen
+  const editForm = document.getElementById('edit-contact-form');
+  if (editForm) editForm.setAttribute('data-mode', 'create');
+
+  // Formularfelder leeren
+  document.getElementById('edit-id').value = '';
+  document.getElementById('edit-name').value = '';
+  document.getElementById('edit-email').value = '';
+  document.getElementById('edit-school').value = '';
+  document.getElementById('edit-phone').value = '';
+  document.getElementById('edit-interest').value = '';
+  document.getElementById('edit-message').value = '';
+  document.getElementById('edit-status').value = 'Neu';
+  document.getElementById('edit-notizen').value = '';
+
+  // Modal anzeigen
+  document.getElementById('edit-modal').style.display = 'flex';
+}
+
 function closeEditModal() {
   document.getElementById('edit-modal').style.display = 'none';
 }
@@ -128,6 +161,7 @@ function closeEditModal() {
 // Global binden für onclick-Attribute in HTML
 window.deleteContact = deleteContact;
 window.openEditModal = openEditModal;
+window.openCreateModal = openCreateModal;
 window.closeEditModal = closeEditModal;
 
 function renderContacts(contacts) {
@@ -220,6 +254,7 @@ function escapeHTML(str) {
 
 document.addEventListener('DOMContentLoaded', () => {
   const refreshBtn = document.getElementById('refresh-btn');
+  const addContactBtn = document.getElementById('add-contact-btn');
   const logoutBtn = document.getElementById('logout-btn');
   const editForm = document.getElementById('edit-contact-form');
   const closeModalBtn = document.getElementById('close-modal-btn');
@@ -243,6 +278,12 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
+  if (addContactBtn) {
+    addContactBtn.addEventListener('click', () => {
+      openCreateModal();
+    });
+  }
+
   if (closeModalBtn) closeModalBtn.addEventListener('click', closeEditModal);
   if (cancelEditBtn) cancelEditBtn.addEventListener('click', closeEditModal);
 
@@ -252,6 +293,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const user = netlifyIdentity.currentUser();
       if (!user) return;
 
+      const mode = editForm.getAttribute('data-mode') || 'edit';
       const id = document.getElementById('edit-id').value;
       const payload = {
         name: document.getElementById('edit-name').value.trim(),
@@ -272,8 +314,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
       try {
         const token = await user.jwt();
-        const response = await fetch(`/.netlify/functions/contacts?id=${id}`, {
-          method: 'PUT',
+        
+        let url = '/.netlify/functions/contacts';
+        let method = 'POST';
+
+        if (mode === 'edit') {
+          url = `/.netlify/functions/contacts?id=${id}`;
+          method = 'PUT';
+        }
+
+        const response = await fetch(url, {
+          method: method,
           headers: {
             'Content-Type': 'application/json',
             'Authorization': `Bearer ${token}`
@@ -283,7 +334,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (!response.ok) {
           const errData = await response.json().catch(() => ({}));
-          throw new Error(errData.error || 'Fehler beim Aktualisieren des Kontakts.');
+          throw new Error(errData.error || 'Fehler beim Speichern des Kontakts.');
         }
 
         closeEditModal();

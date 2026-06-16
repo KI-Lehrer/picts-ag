@@ -4,7 +4,7 @@ exports.handler = async function (event, context) {
   const headers = {
     'Access-Control-Allow-Origin': '*',
     'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-    'Access-Control-Allow-Methods': 'GET, PUT, DELETE, OPTIONS'
+    'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS'
   };
 
   if (event.httpMethod === 'OPTIONS') {
@@ -106,6 +106,48 @@ exports.handler = async function (event, context) {
         statusCode: 200,
         headers,
         body: JSON.stringify({ success: true, message: 'Kontakt erfolgreich aktualisiert.' })
+      };
+    }
+
+    // 5. POST: Neuen Kontakt manuell anlegen
+    if (event.httpMethod === 'POST') {
+      let payload;
+      try {
+        payload = JSON.parse(event.body);
+      } catch (parseError) {
+        return {
+          statusCode: 400,
+          headers,
+          body: JSON.stringify({ error: 'Ungültiges JSON-Format.' })
+        };
+      }
+
+      const { name, email, schule, telefon, interesse, nachricht, status, notizen } = payload;
+      
+      if (!name || name.trim() === '') {
+        return { statusCode: 400, headers, body: JSON.stringify({ error: 'Name ist ein Pflichtfeld.' }) };
+      }
+      if (!email || email.trim() === '') {
+        return { statusCode: 400, headers, body: JSON.stringify({ error: 'E-Mail ist ein Pflichtfeld.' }) };
+      }
+
+      const newContact = {
+        name: name.trim(),
+        email: email.trim(),
+        schule: schule ? schule.trim() : '',
+        telefon: telefon ? telefon.trim() : '',
+        interesse: interesse || '',
+        nachricht: nachricht ? nachricht.trim() : '',
+        status: status || 'Neu',
+        notizen: notizen ? notizen.trim() : '',
+        createdAt: new Date().toISOString()
+      };
+
+      const docRef = await db.collection('contacts').add(newContact);
+      return {
+        statusCode: 200,
+        headers,
+        body: JSON.stringify({ success: true, id: docRef.id, message: 'Kontakt erfolgreich erstellt.' })
       };
     }
 
