@@ -15,6 +15,8 @@
 //                         in Resend sein (z.B. noreply@picts-ag.ch).
 // ──────────────────────────────────────────────────────────────
 
+const { getFirestore } = require('./db');
+
 exports.handler = async function (event, context) {
   // CORS-Header für lokale Entwicklung und Netlify-Sicherheit
   const headers = {
@@ -101,6 +103,26 @@ exports.handler = async function (event, context) {
         headers,
         body: JSON.stringify({ error: 'Die Nachricht ist ein Pflichtfeld.' })
       };
+    }
+
+    // 2.5 In Firestore speichern (falls konfiguriert)
+    const db = getFirestore();
+    if (db) {
+      try {
+        await db.collection('contacts').add({
+          name,
+          email,
+          nachricht,
+          schule: schule || '',
+          telefon: telefon || '',
+          interesse: interesse || '',
+          createdAt: new Date().toISOString()
+        });
+        console.log('Kontakt erfolgreich in Firestore gespeichert.');
+      } catch (dbError) {
+        console.error('Fehler beim Speichern des Kontakts in Firestore:', dbError);
+        // Wir werfen keinen Fehler zurück, damit der E-Mail-Versand trotzdem versucht wird!
+      }
     }
 
     // 3. UMGEBUNGSVARIABLEN ÜBERPRÜFEN

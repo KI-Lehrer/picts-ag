@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="noindex" />
+  <title>CRM | PICTS-Netzwerk Aargau Admin</title>
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <!-- Netlify Identity Widget -->
+  <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
+  <link rel="stylesheet" href="crm.css" />
+</head>
+<body>
+  <div id="app">
+    <!-- Navigation / Header -->
+    <nav class="admin-nav">
+      <div class="nav-brand">
+        <a href="/admin/">← Zurück zum Decap CMS</a>
+      </div>
+      <div class="nav-user">
+        <span id="user-email"></span>
+        <button id="logout-btn" class="btn-secondary">Abmelden</button>
+      </div>
+    </nav>
+
+    <header class="app-header">
+      <h1>Netzwerk CRM</h1>
+      <p>Verwalte die eingegangenen Kontaktanfragen aus der Website</p>
+    </header>
+
+    <main class="dashboard">
+      <section class="list-section">
+        <div class="glass-card">
+          <div class="card-header">
+            <h2>Eingegangene Anfragen</h2>
+            <button id="refresh-btn" class="btn-primary">Aktualisieren</button>
+          </div>
+          <div class="contacts-container" id="contacts-container">
+            <div class="loading-state">Lade Kontakte...</div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script src="crm.js"></script>
+</body>
+</html>

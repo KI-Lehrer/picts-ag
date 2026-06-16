@@ -1,0 +1,9 @@
+{
+  "name": "picts-ag-functions",
+  "version": "1.0.0",
+  "description": "Dependencies for Netlify Serverless Functions",
+  "main": "contact.js",
+  "dependencies": {
+    "firebase-admin": "^11.8.0"
+  }
+}
