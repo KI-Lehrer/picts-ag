@@ -4,7 +4,7 @@ exports.handler = async function (event, context) {
   const headers = {
     'Access-Control-Allow-Origin': '*',
     'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-    'Access-Control-Allow-Methods': 'GET, DELETE, OPTIONS'
+    'Access-Control-Allow-Methods': 'GET, PUT, DELETE, OPTIONS'
   };
 
   if (event.httpMethod === 'OPTIONS') {
@@ -62,6 +62,50 @@ exports.handler = async function (event, context) {
         statusCode: 200,
         headers,
         body: JSON.stringify({ success: true, message: 'Kontakt erfolgreich gelöscht.' })
+      };
+    }
+
+    // 4. PUT: Kontakt aktualisieren
+    if (event.httpMethod === 'PUT') {
+      const { id } = event.queryStringParameters || {};
+      if (!id) {
+        return {
+          statusCode: 400,
+          headers,
+          body: JSON.stringify({ error: 'Kontakt-ID fehlt.' })
+        };
+      }
+
+      let payload;
+      try {
+        payload = JSON.parse(event.body);
+      } catch (parseError) {
+        return {
+          statusCode: 400,
+          headers,
+          body: JSON.stringify({ error: 'Ungültiges JSON-Format.' })
+        };
+      }
+
+      const { name, email, schule, telefon, interesse, nachricht, status, notizen } = payload;
+      
+      const updatedFields = {};
+      if (name !== undefined) updatedFields.name = name.trim();
+      if (email !== undefined) updatedFields.email = email.trim();
+      if (schule !== undefined) updatedFields.schule = schule.trim();
+      if (telefon !== undefined) updatedFields.telefon = telefon.trim();
+      if (interesse !== undefined) updatedFields.interesse = interesse;
+      if (nachricht !== undefined) updatedFields.nachricht = nachricht.trim();
+      if (status !== undefined) updatedFields.status = status;
+      if (notizen !== undefined) updatedFields.notizen = notizen.trim();
+      
+      updatedFields.updatedAt = new Date().toISOString();
+
+      await db.collection('contacts').doc(id).update(updatedFields);
+      return {
+        statusCode: 200,
+        headers,
+        body: JSON.stringify({ success: true, message: 'Kontakt erfolgreich aktualisiert.' })
       };
     }
 

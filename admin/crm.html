@@ -44,6 +44,75 @@
         </div>
       </section>
     </main>
+  <!-- Edit Modal -->
+  <div id="edit-modal" class="modal" style="display: none;">
+    <div class="modal-content glass-card">
+      <div class="modal-header">
+        <h2>Kontakt bearbeiten</h2>
+        <span class="close-modal-btn" id="close-modal-btn">&times;</span>
+      </div>
+      <form id="edit-contact-form">
+        <input type="hidden" id="edit-id" name="id" />
+        
+        <div class="form-group">
+          <label for="edit-name">Name (Vorname & Nachname)</label>
+          <input type="text" id="edit-name" name="name" required />
+        </div>
+        
+        <div class="form-group">
+          <label for="edit-email">E-Mail-Adresse</label>
+          <input type="email" id="edit-email" name="email" required />
+        </div>
+
+        <div class="form-group">
+          <label for="edit-school">Schulgemeinde / Schule</label>
+          <input type="text" id="edit-school" name="schule" />
+        </div>
+
+        <div class="form-group">
+          <label for="edit-phone">Telefonnummer</label>
+          <input type="tel" id="edit-phone" name="telefon" />
+        </div>
+
+        <div class="form-group">
+          <label for="edit-interest">Interesse</label>
+          <select id="edit-interest" name="interesse">
+            <option value="">Bitte wählen …</option>
+            <option value="mitmachen">Am Netzwerk teilnehmen</option>
+            <option value="kernteam">Im Kernteam mitarbeiten</option>
+            <option value="treffen">An Treffen teilnehmen</option>
+            <option value="interesse">Interesse anmelden</option>
+            <option value="infos">Informationen erhalten</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="edit-message">Nachricht</label>
+          <textarea id="edit-message" name="nachricht" rows="3"></textarea>
+        </div>
+
+        <!-- Administrative Felder -->
+        <div class="form-group">
+          <label for="edit-status">Status (Administrativ)</label>
+          <select id="edit-status" name="status">
+            <option value="Neu">Neu</option>
+            <option value="In Bearbeitung">In Bearbeitung</option>
+            <option value="Mitglied">Mitglied</option>
+            <option value="Inaktiv">Inaktiv</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="edit-notizen">Interne Notizen (Administrativ)</label>
+          <textarea id="edit-notizen" name="notizen" rows="3" placeholder="Z.B. Treffen vereinbart am..."></textarea>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" id="cancel-edit-btn" class="btn-secondary">Abbrechen</button>
+          <button type="submit" class="btn-primary">Speichern</button>
+        </div>
+      </form>
+    </div>
   </div>
 
   <script src="crm.js"></script>

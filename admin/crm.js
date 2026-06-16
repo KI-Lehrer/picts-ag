@@ -7,6 +7,9 @@ window.addEventListener('unhandledrejection', function(event) {
   alert("Unbehandelter Promise-Fehler: " + event.reason);
 });
 
+// Globale Variable zum Zwischenspeichern der geladenen Kontakte
+let loadedContacts = [];
+
 // Registriere Identity-Events sofort, um Race Conditions zu vermeiden
 netlifyIdentity.on('init', user => {
   if (!user) {
@@ -59,8 +62,8 @@ async function loadContacts(user) {
       throw new Error(errData.error || 'Fehler beim Laden der Kontakte (Status ' + response.status + ').');
     }
 
-    const contacts = await response.json();
-    renderContacts(contacts);
+    loadedContacts = await response.json();
+    renderContacts(loadedContacts);
 
   } catch (error) {
     console.error(error);
@@ -95,7 +98,37 @@ async function deleteContact(id) {
   }
 }
 
+// Modal Öffnen / Schließen
+function openEditModal(id) {
+  const contact = loadedContacts.find(c => c.id === id);
+  if (!contact) {
+    alert("Kontakt nicht gefunden.");
+    return;
+  }
+
+  // Formularfelder befüllen
+  document.getElementById('edit-id').value = contact.id;
+  document.getElementById('edit-name').value = contact.name || '';
+  document.getElementById('edit-email').value = contact.email || '';
+  document.getElementById('edit-school').value = contact.schule || '';
+  document.getElementById('edit-phone').value = contact.telefon || '';
+  document.getElementById('edit-interest').value = contact.interesse || '';
+  document.getElementById('edit-message').value = contact.nachricht || '';
+  document.getElementById('edit-status').value = contact.status || 'Neu';
+  document.getElementById('edit-notizen').value = contact.notizen || '';
+
+  // Modal anzeigen
+  document.getElementById('edit-modal').style.display = 'flex';
+}
+
+function closeEditModal() {
+  document.getElementById('edit-modal').style.display = 'none';
+}
+
+// Global binden für onclick-Attribute in HTML
 window.deleteContact = deleteContact;
+window.openEditModal = openEditModal;
+window.closeEditModal = closeEditModal;
 
 function renderContacts(contacts) {
   const contactsContainer = document.getElementById('contacts-container');
@@ -121,14 +154,32 @@ function renderContacts(contacts) {
       }
     }
 
+    // Status Badge auslesen und stylen
+    const status = contact.status || 'Neu';
+    const statusClass = 'status-' + status.toLowerCase().replace(/\s+/g, '-');
+
+    // Interne Notizen vorbereiten
+    const notesHtml = contact.notizen ? `
+      <div class="admin-notes-section">
+        <div class="admin-notes-title">Interne Notizen</div>
+        <div class="admin-notes-text">${escapeHTML(contact.notizen)}</div>
+      </div>
+    ` : '';
+
     return `
       <div class="contact-card">
         <div class="contact-header">
           <div>
             <span class="contact-date">${escapeHTML(displayDate)}</span>
-            <div class="contact-name">${escapeHTML(contact.name)}</div>
+            <div class="contact-name">
+              ${escapeHTML(contact.name)}
+              <span class="status-badge ${statusClass}">${escapeHTML(status)}</span>
+            </div>
           </div>
-          <button type="button" class="delete-btn" onclick="deleteContact('${contact.id}')">Löschen</button>
+          <div class="btn-group">
+            <button type="button" class="btn-secondary" style="padding: 0.3rem 0.6rem; font-size: 0.85rem;" onclick="openEditModal('${contact.id}')">Bearbeiten</button>
+            <button type="button" class="delete-btn" onclick="deleteContact('${contact.id}')">Löschen</button>
+          </div>
         </div>
         <div class="contact-details">
           <p><strong>E-Mail:</strong> <a href="mailto:${escapeHTML(contact.email)}">${escapeHTML(contact.email)}</a></p>
@@ -137,6 +188,7 @@ function renderContacts(contacts) {
           ${contact.interesse ? `<p><strong>Interesse:</strong> ${escapeHTML(translateInteresse(contact.interesse))}</p>` : ''}
         </div>
         ${contact.nachricht ? `<div class="contact-message">"${escapeHTML(contact.nachricht)}"</div>` : ''}
+        ${notesHtml}
       </div>
     `;
   }).join('');
@@ -169,6 +221,9 @@ function escapeHTML(str) {
 document.addEventListener('DOMContentLoaded', () => {
   const refreshBtn = document.getElementById('refresh-btn');
   const logoutBtn = document.getElementById('logout-btn');
+  const editForm = document.getElementById('edit-contact-form');
+  const closeModalBtn = document.getElementById('close-modal-btn');
+  const cancelEditBtn = document.getElementById('cancel-edit-btn');
 
   if (logoutBtn) {
     logoutBtn.addEventListener('click', () => {
@@ -184,6 +239,60 @@ document.addEventListener('DOMContentLoaded', () => {
       } else {
         alert("Kein Benutzer eingeloggt. Bitte melde dich an.");
         netlifyIdentity.open('login');
+      }
+    });
+  }
+
+  if (closeModalBtn) closeModalBtn.addEventListener('click', closeEditModal);
+  if (cancelEditBtn) cancelEditBtn.addEventListener('click', closeEditModal);
+
+  if (editForm) {
+    editForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const user = netlifyIdentity.currentUser();
+      if (!user) return;
+
+      const id = document.getElementById('edit-id').value;
+      const payload = {
+        name: document.getElementById('edit-name').value.trim(),
+        email: document.getElementById('edit-email').value.trim(),
+        schule: document.getElementById('edit-school').value.trim(),
+        telefon: document.getElementById('edit-phone').value.trim(),
+        interesse: document.getElementById('edit-interest').value,
+        nachricht: document.getElementById('edit-message').value.trim(),
+        status: document.getElementById('edit-status').value,
+        notizen: document.getElementById('edit-notizen').value.trim()
+      };
+
+      // Button in Ladezustand versetzen
+      const submitBtn = editForm.querySelector('button[type="submit"]');
+      const originalText = submitBtn.textContent;
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Speichert...';
+
+      try {
+        const token = await user.jwt();
+        const response = await fetch(`/.netlify/functions/contacts?id=${id}`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify(payload)
+        });
+
+        if (!response.ok) {
+          const errData = await response.json().catch(() => ({}));
+          throw new Error(errData.error || 'Fehler beim Aktualisieren des Kontakts.');
+        }
+
+        closeEditModal();
+        loadContacts(user);
+      } catch (err) {
+        alert(err.message);
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.textContent = originalText;
       }
     });
   }
