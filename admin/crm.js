@@ -1,3 +1,12 @@
+// Globaler Fehler-Handler für einfaches Debugging
+window.onerror = function(message, source, lineno, colno, error) {
+  alert("JavaScript-Fehler: " + message + "\nQuelle: " + source + "\nZeile: " + lineno);
+};
+
+window.addEventListener('unhandledrejection', function(event) {
+  alert("Unbehandelter Promise-Fehler: " + event.reason);
+});
+
 document.addEventListener('DOMContentLoaded', () => {
   const contactsContainer = document.getElementById('contacts-container');
   const refreshBtn = document.getElementById('refresh-btn');
@@ -30,6 +39,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const user = netlifyIdentity.currentUser();
     if (user) {
       loadContacts(user);
+    } else {
+      alert("Kein Benutzer eingeloggt. Bitte melde dich an.");
+      netlifyIdentity.open('login');
     }
   });
 
@@ -53,7 +65,8 @@ document.addEventListener('DOMContentLoaded', () => {
         if (response.status === 401) {
           throw new Error('Nicht autorisiert. Bitte melde dich erneut an.');
         }
-        throw new Error('Fehler beim Laden der Kontakte.');
+        const errData = await response.json().catch(() => ({}));
+        throw new Error(errData.error || 'Fehler beim Laden der Kontakte (Status ' + response.status + ').');
       }
 
       const contacts = await response.json();
@@ -81,7 +94,8 @@ document.addEventListener('DOMContentLoaded', () => {
       });
 
       if (!response.ok) {
-        throw new Error('Fehler beim Löschen des Kontakts.');
+        const errData = await response.json().catch(() => ({}));
+        throw new Error(errData.error || 'Fehler beim Löschen des Kontakts.');
       }
 
       loadContacts(user);
@@ -140,6 +154,7 @@ document.addEventListener('DOMContentLoaded', () => {
       'mitmachen': 'Am Netzwerk teilnehmen',
       'kernteam': 'Im Kernteam mitarbeiten',
       'treffen': 'An Treffen teilnehmen',
+      'interesse': 'Interesse anmelden',
       'infos': 'Informationen erhalten'
     };
     return map[value] || value;
